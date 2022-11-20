@@ -1,0 +1,9 @@
+.DS_Store
+
+.vs
+.vscode
+.idea
+.cache
+
+build
+
