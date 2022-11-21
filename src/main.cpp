@@ -1,7 +1,5 @@
 #include <iostream>
 
-#include <imgui.h>
-
 #include "scene/loader.hpp"
 #include "window/window.hpp"
 #include "pathtracer/pathtracer.hpp"
@@ -27,7 +25,6 @@ int main(int argc, char **argv) {
     uint32_t window_width = 1280;
     uint32_t window_height = 720;
     Window window(window_width, window_height, "CUDA pathtracer");
-    glViewport(0, 0, window_width, window_height);
 
     Scene scene {};
     if (!LoadObjScene(scene, obj_path)) {
@@ -46,7 +43,6 @@ int main(int argc, char **argv) {
     window.SetResizeCallback([&](uint32_t width, uint32_t height) {
         window_width = width;
         window_height = height;
-        glViewport(0, 0, width, height);
         film.Resize(width, height);
     });
 

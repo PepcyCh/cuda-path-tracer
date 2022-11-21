@@ -85,9 +85,8 @@ void SceneObject::ShowUi() {
 
     for (auto &[ty, comp] : components_) {
         auto component_str = std::string("component '") + ty.get().name() + "'";
-        if (ImGui::TreeNode(component_str.c_str())) {
+        if (ImGui::CollapsingHeader(component_str.c_str())) {
             comp.first->ShowUi(comp.second);
-            ImGui::TreePop();
         }
     }
 }

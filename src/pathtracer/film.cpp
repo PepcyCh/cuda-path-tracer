@@ -32,7 +32,9 @@ void Film::CudaUnmap() {
     cudaGraphicsUnmapResources(1, &cuda_res_);
 
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, gl_buffer_);
-    glTextureSubImage2D(gl_texture_, 0, 0, 0, width_, height_, GL_RGBA, GL_FLOAT, nullptr);
+    glBindTexture(GL_TEXTURE_2D, gl_texture_);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width_, height_, GL_RGBA, GL_FLOAT, nullptr);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
@@ -40,11 +42,17 @@ void Film::Init(uint32_t width, uint32_t height) {
     width_ = width;
     height_ = height;
 
-    glCreateBuffers(1, &gl_buffer_);
-    glNamedBufferStorage(gl_buffer_, width * height * sizeof(glm::vec4), nullptr, 0);
+    glGenBuffers(1, &gl_buffer_);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, gl_buffer_);
+    glBufferData(GL_PIXEL_UNPACK_BUFFER, width * height * sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
-    glCreateTextures(GL_TEXTURE_2D, 1, &gl_texture_);
-    glTextureStorage2D(gl_texture_, 1, GL_RGBA32F, width, height);
+    glGenTextures(1, &gl_texture_);
+    glBindTexture(GL_TEXTURE_2D, gl_texture_);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     cudaGraphicsGLRegisterBuffer(&cuda_res_, gl_buffer_, cudaGraphicsRegisterFlagsNone);
 }

@@ -4,6 +4,7 @@
 
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
+#include <imgui.h>
 
 class Window {
 public:
@@ -52,4 +53,8 @@ private:
 
     uint32_t empty_vao_;
     uint32_t display_program_;
+
+    std::unordered_map<float, ImFont *> imgui_fonts_;
+    ImFont *imgui_curr_font_ = nullptr;
+    float imgui_last_scale_ = 1.0f;
 };

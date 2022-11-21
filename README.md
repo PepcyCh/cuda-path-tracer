@@ -16,7 +16,7 @@ CMake is used to build this project.
 
 C++20 is needed.
 
-GPU that supports CUDA is needed.
+GPU and driver that support CUDA (CUDA 11.x) and OpenGL 3.3 are needed.
 
 ## Used Thirdparty
 
@@ -30,10 +30,9 @@ GPU that supports CUDA is needed.
 
 ## Details
 
-The main 2 purposes for me to write this project are to
+The 2 main purposes for me to write this project are to
 
 1. implement Linear BVH building using CUDA
 2. try to implement a very naive component system (just for fun)
 
 In this naive component system, a block linked list is used to store components for each component type, so it may be quick to loop over entities with a single specific component type but slow to loop over components of a specific entity. There is no need to derive some base class, each class can be a component type directly.
-
