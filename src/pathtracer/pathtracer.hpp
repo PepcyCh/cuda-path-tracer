@@ -6,21 +6,22 @@
 
 class PathTracer {
 public:
-    PathTracer(Scene &scene);
+    PathTracer(Scene &scene, Film &film);
 
     void BuildBuffers();
 
+    void ResetAccumelation();
+
     void Update();
 
-    void Render(Film *film);
+    void ShowUi();
 
 private:
     void BuildAccel();
     void BuildInstancesAndLights();
 
-    void ResetAccumelation();
-
     Scene &scene_;
+    Film &film_;
 
     int max_depth_ = -1;
     uint32_t curr_spp_ = 0;

@@ -21,4 +21,13 @@ constexpr float k2Pi = 2.0f * kPi;
 constexpr float kInvPi = 1.0f / kPi;
 constexpr float kInv2Pi = 1.0f / k2Pi;
 
+inline CU_DEVICE float Luminance(const glm::vec3 &color) {
+    return color.r * 0.299 + color.g * 0.587 + color.b * 0.114f;
+}
+
+struct TaggedPointer {
+    uint32_t tag;
+    void *ptr;
+};
+
 }

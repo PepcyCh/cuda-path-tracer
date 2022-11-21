@@ -16,14 +16,11 @@ public:
 
     void BuildBuffer();
 
-    bool IsChanged() const { return changed_; }
-
     glm::vec3 pos = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 look_at = glm::vec3(0.0f);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     float fov = 45.0f;
 
 private:
-    bool changed_ = false;
     std::unique_ptr<CuBuffer> buffer_;
 };

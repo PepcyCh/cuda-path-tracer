@@ -6,10 +6,6 @@
 
 namespace kernel {
 
-inline CU_DEVICE float Luminance(const glm::vec3 &color) {
-    return color.r * 0.299 + color.g * 0.587 + color.b * 0.114f;
-}
-
 inline CU_DEVICE float PowerHeuristic(float p0, float p1) {
     p0 *= p0;
     p1 *= p1;

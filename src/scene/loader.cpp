@@ -178,14 +178,21 @@ bool LoadObjScene(Scene &scene, const std::filesystem::path &path) {
     for (size_t i = 0; i < in_materials.size(); i++) {
         const auto &in_mat = in_materials[i];
         auto mat = std::make_shared<Material>();
-        mat->color = glm::vec3(in_mat.diffuse[0], in_mat.diffuse[1] ,in_mat.diffuse[2]);
+        mat->diffuse = glm::vec3(in_mat.diffuse[0], in_mat.diffuse[1] ,in_mat.diffuse[2]);
+        mat->specular = glm::vec3(in_mat.specular[0], in_mat.specular[1] ,in_mat.specular[2]);
         mat->emission = glm::vec3(in_mat.emission[0], in_mat.emission[1], in_mat.emission[2]);
+        mat->ior = in_mat.ior;
+        mat->shininess = in_mat.shininess;
         if (!in_mat.diffuse_texname.empty()) {
-            LoadTexture(mat->color_map, base_dir / in_mat.diffuse_texname);
+            LoadTexture(mat->diffuse_map, base_dir / in_mat.diffuse_texname);
+        }
+        if (!in_mat.specular_texname.empty()) {
+            LoadTexture(mat->specular_map, base_dir / in_mat.specular_texname);
         }
         if (!in_mat.emissive_texname.empty()) {
-            LoadTexture(mat->color_map, base_dir / in_mat.emissive_texname);
+            LoadTexture(mat->emission_map, base_dir / in_mat.emissive_texname);
         }
+        mat->SetChanged();
         materials[i] = mat;
     }
     materials[in_materials.size()] = std::make_shared<Material>();

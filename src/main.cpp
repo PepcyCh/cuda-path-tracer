@@ -37,8 +37,10 @@ int main(int argc, char **argv) {
     }
 
     Film film(window_width, window_height);
-    PathTracer path_tracer(scene);
-    path_tracer.BuildBuffers();
+
+    auto path_tracer_object = scene.AddObject("path tracer");
+    auto path_tracer = path_tracer_object->AddComponent<PathTracer>(scene, film);
+    path_tracer->BuildBuffers();
 
     window.SetResizeCallback([&](uint32_t width, uint32_t height) {
         window_width = width;
@@ -48,9 +50,6 @@ int main(int argc, char **argv) {
 
     window.MainLoop([&]() {
         scene.Update();
-
-        path_tracer.Update();
-        path_tracer.Render(&film);
 
         window.Display(film.GlTexture());
 

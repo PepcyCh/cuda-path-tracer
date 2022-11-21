@@ -5,6 +5,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
 
+namespace {
+    
+Scene *g_scene = nullptr;
+
+}
+
 ComponentStorage::~ComponentStorage() {
     if (funcs_.destructor) {
         if (storage_.size() > 0) {
@@ -52,6 +58,10 @@ size_t ComponentStorage::Count() const {
 }
 
 
+Scene::Scene() {
+    g_scene = this;
+}
+
 std::shared_ptr<SceneObject> Scene::AddObject(std::string_view name) {
     auto index = objects_.size();
     auto obj = std::shared_ptr<SceneObject>(new SceneObject(this, name));
@@ -77,6 +87,10 @@ void Scene::Update() {
     for (auto &[_, comp] : components_) {
         comp.Update();
     }
+}
+
+Scene &GetGlobalScene() {
+    return *g_scene;
 }
 
 

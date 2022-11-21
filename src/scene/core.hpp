@@ -115,6 +115,8 @@ private:
 
 class Scene {
 public:
+    Scene();
+
     std::shared_ptr<SceneObject> AddObject(std::string_view name);
 
     void ShowUi();
@@ -149,12 +151,25 @@ private:
         auto storage = it->second.Allocate(object);
         return { &it->second, new (storage) T() };
     }
+    template <typename T, typename... Args> requires std::constructible_from<T, Args...>
+    std::pair<ComponentStorage *, T *> AddComponent(SceneObject *object, Args &&... args) {
+        const auto &tid = typeid(T);
+        auto it = components_.find(tid);
+        if (it == components_.end()) {
+            it = components_.insert({ tid, {} }).first;
+            it->second.Init<T>();
+        }
+        auto storage = it->second.Allocate(object);
+        return { &it->second, new (storage) T(std::forward<Args>(args)...) };
+    }
 
     std::vector<std::shared_ptr<SceneObject>> objects_;
     std::unordered_map<TypeInfoRef, ComponentStorage> components_;
 
     size_t curr_ui_object_ = 0;
 };
+
+Scene &GetGlobalScene();
 
 class SceneObject {
 public:
@@ -165,6 +180,17 @@ public:
         const auto &tid = typeid(T);
         if (!components_.contains(tid)) {
             auto component = scene_->AddComponent<T>(this);
+            components_.insert({ tid, component });
+            return component.second;
+        } else {
+            return nullptr;
+        }
+    }
+    template <typename T, typename... Args> requires std::constructible_from<T, Args...>
+    T *AddComponent(Args &&... args) {
+        const auto &tid = typeid(T);
+        if (!components_.contains(tid)) {
+            auto component = scene_->AddComponent<T>(this, std::forward<Args>(args)...);
             components_.insert({ tid, component });
             return component.second;
         } else {

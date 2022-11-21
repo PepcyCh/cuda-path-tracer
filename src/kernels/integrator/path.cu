@@ -90,6 +90,9 @@ CU_GLOBAL void RenderKernel(PathTracer::Params params) {
         (glm::vec2(pixel_coord) + subpixel) / glm::vec2(params.screen_width, params.screen_height), sampler.Next2D());
 
     auto color = Trace(params, ray, sampler);
+    if (glm::any(glm::isnan(color)) || glm::any(glm::isinf(color))) {
+        color = glm::vec3(0.0f);
+    }
     auto prev_color = params.output[pixel_index];
     auto mixed_color = glm::mix(prev_color, glm::vec4(color, 1.0f), 1.0f / params.spp);
     params.output[pixel_index] = mixed_color;

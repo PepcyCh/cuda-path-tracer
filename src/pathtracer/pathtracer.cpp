@@ -1,12 +1,14 @@
 #include "pathtracer.hpp"
 
+#include <imgui.h>
+
 #include "scene/mesh.hpp"
 #include "scene/material.hpp"
 #include "scene/camera.hpp"
 #include "kernels/accel/accel_build.cuh"
 #include "kernels/integrator/path.cuh"
 
-PathTracer::PathTracer(Scene &scene) : scene_(scene) {}
+PathTracer::PathTracer(Scene &scene, Film &film) : scene_(scene), film_(film) {}
 
 void PathTracer::BuildBuffers() {
     BuildAccel();
@@ -20,27 +22,14 @@ void PathTracer::BuildBuffers() {
 }
 
 void PathTracer::Update() {
-    bool reset = false;
-
-    scene_.ForEach<CameraComponent>([this, &reset](CameraComponent &camera) {
-        camera_buffer_ = camera.Buffer();
-        reset |= camera.IsChanged();
-    });
-
-    if (reset) {
-        ResetAccumelation();
-    }
-}
-
-void PathTracer::Render(Film *film) {
     if (!camera_buffer_ || num_lights_ == 0) {
         return;
     }
 
-    if (film->Width() != last_width_ || film->Height() != last_height_) {
+    if (film_.Width() != last_width_ || film_.Height() != last_height_) {
         ResetAccumelation();
-        last_width_ = film->Width();
-        last_height_ = film->Height();
+        last_width_ = film_.Width();
+        last_height_ = film_.Height();
     }
 
     ++curr_spp_;
@@ -58,14 +47,25 @@ void PathTracer::Render(Film *film) {
             .instances = instances_buffer_->TypedGpuData<kernel::Instance>(),
             .accel = accel_buffer_->TypedGpuData<kernel::AccelTop>(),
         },
-        .output = film->CudaMap(),
-        .screen_width = film->Width(),
-        .screen_height = film->Height(),
+        .output = film_.CudaMap(),
+        .screen_width = film_.Width(),
+        .screen_height = film_.Height(),
         .spp = curr_spp_,
         .max_depth = static_cast<uint32_t>(max_depth_),
     };
     kernel::PathTracer::Render(params);
-    film->CudaUnmap();
+    film_.CudaUnmap();
+}
+
+void PathTracer::ShowUi() {
+    bool changed = false;
+    changed |= ImGui::DragInt("max depth", &max_depth_, 1, -1, 16);
+    ImGui::Text("accumelated spp: %u", curr_spp_);
+    changed |= ImGui::Button("reset accumeltaion");
+
+    if (changed) {
+        ResetAccumelation();
+    }
 }
 
 void PathTracer::ResetAccumelation() {
@@ -156,17 +156,12 @@ void PathTracer::BuildInstancesAndLights() {
 
     scene_.ForEach<const MeshComponent, MaterialComponent>(
         [this, &instances, &lights](SceneObject &object, const MeshComponent &mesh, MaterialComponent &material) {
-            material.GetMaterial()->BuildBuffer();
-
             kernel::Instance inst {
                 .geometry = {
                     .type = kernel::Geometry::Type::eTriMesh,
                     .ptr = mesh.GetMesh()->GeometryBuffer()->GpuData(),
                 },
-                .material = {
-                    .type = kernel::Material::Type::eLambert,
-                    .ptr = material.GetMaterial()->Buffer()->TypedGpuData<kernel::MaterialCommon>(),
-                },
+                .material = std::bit_cast<kernel::Material>(material.GetMaterial()->Pointer()),
                 .light = {
                     .type = kernel::Light::Type::eGeometry,
                     .ptr = nullptr,

@@ -10,12 +10,7 @@ struct LambertBsdf {
     CU_DEVICE bool IsDelta() const { return false; }
 
     CU_DEVICE BsdfSample Sample(const glm::vec3 &wo, float rand1, const glm::vec2 &rand2) const {
-        auto phi = rand2.x * k2Pi;
-        auto sin_phi = sin(phi);
-        auto cos_phi = cos(phi);
-        auto sin_theta = sqrt(rand2.y);
-        auto cos_theta = sqrt(1.0f - rand2.y);
-        glm::vec3 wi(sin_theta * cos_phi, sin_theta * sin_phi, cos_theta);
+        auto wi = CosineHemisphereSample(rand2);
         return BsdfSample { wi, abs(wi.z) * kInvPi, color, { BsdfLobe::Type::eDiffuse, BsdfLobe::Dir::eReflection} };
     }
 

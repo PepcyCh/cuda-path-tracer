@@ -2,21 +2,27 @@
 
 #include <imgui.h>
 
+#include "pathtracer/pathtracer.hpp"
 #include "kernels/camera/camera.cuh"
 
 void CameraComponent::Update() {
     // TODO - camera & key
-    if (changed_) {
-        BuildBuffer();
-    }
 }
 
 void CameraComponent::ShowUi() {
-    changed_ = false;
-    changed_ |= ImGui::DragFloat3("pos", &pos.x, 0.05f);
-    changed_ |= ImGui::DragFloat3("look at", &look_at.x, 0.05f);
-    changed_ |= ImGui::DragFloat3("up", &up.x, 0.05f);
-    changed_ |= ImGui::DragFloat("fov", &fov, 0.5f);
+    bool changed = false;
+    changed |= ImGui::DragFloat3("pos", &pos.x, 0.05f);
+    changed |= ImGui::DragFloat3("look at", &look_at.x, 0.05f);
+    changed |= ImGui::DragFloat3("up", &up.x, 0.05f);
+    changed |= ImGui::DragFloat("fov", &fov, 0.5f);
+
+    if (changed) {
+        BuildBuffer();
+
+        GetGlobalScene().ForEach<PathTracer>([](PathTracer &path_tracer) {
+            path_tracer.ResetAccumelation();
+        });
+    }
 }
 
 void CameraComponent::BuildBuffer() {
