@@ -26,16 +26,16 @@ struct Geometry {
 
     CU_DEVICE Vertex SampleVertex(const glm::mat4 &transform, const glm::mat4 &transform_it,
         const glm::vec2 &rand) const {
-        Vertex vert {};
+        Vertex vertex {};
         switch (type) {
             case Type::eTriMesh:
-                vert = reinterpret_cast<const TriMesh *>(ptr)->SampleVertex(rand);
+                vertex = reinterpret_cast<const TriMesh *>(ptr)->SampleVertex(rand);
                 break;
         }
-        // TODO - transform pdf
-        vert.position = transform * glm::vec4(vert.position, 1.0f);
-        vert.normal = glm::normalize(transform_it * glm::vec4(vert.normal, 0.0f));
-        return vert;
+        VertexTransformPdf(vertex, transform);
+        vertex.position = transform * glm::vec4(vertex.position, 1.0f);
+        vertex.normal = glm::normalize(transform_it * glm::vec4(vertex.normal, 0.0f));
+        return vertex;
     }
 };
 

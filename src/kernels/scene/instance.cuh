@@ -19,9 +19,9 @@ struct Instance {
     CU_DEVICE ShadingSurface GetShadingSurface(const AccelHitInfo &hit_info) const {
         auto transform_it = glm::transpose(hit_info.transform_inv);
         auto vertex = geometry.GetVertex(hit_info.primitive_id, hit_info.attribs);
+        VertexTransformPdf(vertex, hit_info.transform);
         vertex.position = hit_info.transform * glm::vec4(vertex.position, 1.0f);
         vertex.normal = glm::normalize(transform_it * glm::vec4(vertex.normal, 0.0f));
-        // TODO - transform pdf
         return ShadingSurface { vertex, material.GetBsdf(vertex.texcoord )};
     }
 };
