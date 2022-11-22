@@ -38,5 +38,34 @@ inline CU_DEVICE glm::vec3 CosineHemisphereSample(const glm::vec2 &rand) {
 inline CU_DEVICE glm::vec3 Reflect(const glm::vec3 &i, const glm::vec3 &n) {
     return 2.0f * glm::dot(i, n) * n - i;
 }
+inline CU_DEVICE glm::vec3 Refract(const glm::vec3 &i, const glm::vec3 &n, float ior) {
+    auto cos_i = glm::dot(i, n);
+    auto eta = cos_i >= 0.0f ? 1.0f / ior : ior;
+    auto cos_t_sqr = 1.0f - (1.0f - cos_i * cos_i) * eta * eta;
+    if (cos_t_sqr < 0.0f) {
+        return glm::vec3(0.0f);
+    }
+    auto cos_t = sqrt(cos_t_sqr);
+    auto n_scale = eta * abs(cos_i) - cos_t;
+    return (cos_i >= 0.0f ? n_scale : -n_scale) * n - eta * i;
+}
+
+inline CU_DEVICE glm::vec3 ReflectHalf(const glm::vec3 &i, const glm::vec3 &o) {
+    auto h = glm::normalize(i + o);
+    return h.z >= 0.0f ? h : -h;
+}
+inline CU_DEVICE glm::vec3 RefractHalf(const glm::vec3 &i, const glm::vec3 &o, float ior) {
+    auto eta = i.z >= 0.0f ? 1.0f / ior : ior;
+    auto h = glm::normalize(eta * i + o);
+    return h.z >= 0.0f ? h : -h;
+}
+
+inline CU_DEVICE float Pow2(float x) {
+    return x * x;
+}
+inline CU_DEVICE float Pow5(float x) {
+    float x2 = Pow2(x);
+    return x2 * x2 * x;
+}
 
 }

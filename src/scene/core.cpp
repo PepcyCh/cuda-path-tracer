@@ -1,6 +1,7 @@
 #include "core.hpp"
 
 #include <algorithm>
+#include <format>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
@@ -98,7 +99,7 @@ void SceneObject::ShowUi() {
     ImGui::Text("object '%s'", name_.c_str());
 
     for (auto &[ty, comp] : components_) {
-        auto component_str = std::string("component '") + ty.get().name() + "'";
+        auto component_str = std::format("component '{}'", ty.get().name());
         if (ImGui::CollapsingHeader(component_str.c_str())) {
             comp.first->ShowUi(comp.second);
         }

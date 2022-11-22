@@ -17,12 +17,16 @@ public:
 
     void SetChanged();
 
+    void ShowUi();
+
     glm::vec3 emission = glm::vec3(0.0f);
     glm::vec3 diffuse = glm::vec3(0.5f);
     glm::vec3 specular = glm::vec3(0.5f);
     glm::vec3 transmittance = glm::vec3(0.0f);
     float ior = 1.5f;
     float shininess = 1.0f;
+    float opacity = 1.0f;
+    int bsdf_type = 0;
 
     std::unique_ptr<CuTexture> emission_map;
     std::unique_ptr<CuTexture> diffuse_map;

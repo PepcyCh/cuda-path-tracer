@@ -27,8 +27,8 @@ struct BlinnPhongBsdf {
             samp.lobe = { BsdfLobe::Type::eDiffuse, BsdfLobe::Dir::eReflection };
 
             d = abs(samp.wi.z) * kInvPi;
-            h = glm::normalize(samp.wi + wo);
-            s = pow(abs(h.z), shininess);
+            h = ReflectHalf(samp.wi, wo);
+            s = pow(h.z, shininess);
         } else {
             auto phi = rand2.x * k2Pi;
             auto sin_phi = sin(phi);
@@ -36,15 +36,14 @@ struct BlinnPhongBsdf {
             auto cos_theta = pow(1.0f - rand2.y, 1.0f / (2.0f + shininess));
             auto sin_theta = sqrt(1.0f - cos_theta * cos_theta);
             h = glm::vec3(sin_theta * cos_phi, sin_theta * sin_phi, cos_theta);
-            h.z = copysignf(h.z, wo.z);
             samp.wi = Reflect(wo, h);
             samp.lobe = { BsdfLobe::Type::eGlossy, BsdfLobe::Dir::eReflection };
 
-            s = pow(abs(h.z), shininess);
+            s = pow(h.z, shininess);
             d = abs(samp.wi.z) * kInvPi;
         }
         auto half_pdf = s * (2.0f + shininess) * kInv2Pi;
-        samp.pdf = diffuse_pdf * d + specular_pdf * half_pdf / (4.0f * glm::dot(wo, h));
+        samp.pdf = diffuse_pdf * d + specular_pdf * half_pdf / (4.0f * abs(glm::dot(samp.wi, h)));
         samp.weight = (diffuse * d + specular * s) / samp.pdf;
 
         return samp;
@@ -59,18 +58,18 @@ struct BlinnPhongBsdf {
         auto specular_weight = Luminance(specular);
         auto diffuse_pdf = diffuse_weight / (diffuse_weight + specular_weight);
         auto specular_pdf = 1.0f - diffuse_pdf;
-        auto h = glm::normalize(wi + wo);
-        auto half_pdf = pow(abs(h.z), shininess) * (2.0f + shininess) * kInv2Pi;
-        return diffuse_pdf * abs(wi.z) * kInvPi + specular_pdf * half_pdf / (4.0f * glm::dot(wo, h));
+        auto h = ReflectHalf(wi, wo);
+        auto half_pdf = pow(h.z, shininess) * (2.0f + shininess) * kInv2Pi;
+        return diffuse_pdf * abs(wi.z) * kInvPi + specular_pdf * half_pdf / (4.0f * abs(glm::dot(wi, h)));
     }
 
     CU_DEVICE glm::vec3 Eval(const glm::vec3 &wo, const glm::vec3 &wi) const {
         if (wo.z * wi.z <= 0.0f) {
             return glm::vec3(0.0f);
         }
-        auto h = glm::normalize(wi + wo);
+        auto h = ReflectHalf(wi, wo);
         auto d = diffuse * abs(wi.z) * kInvPi;
-        auto s = specular * pow(abs(h.z), shininess);
+        auto s = specular * pow(h.z, shininess);
         return d + s;
     }
 };

@@ -38,7 +38,39 @@ void FetchVertexData(const tinyobj::attrib_t &in_attribs, const tinyobj::index_t
     }
 }
 
+glm::vec3 Vec3From(const float *data) {
+    return glm::vec3(data[0], data[1], data[2]);
+}
+
 void LoadTexture(std::unique_ptr<CuTexture> &texture, const std::filesystem::path &path) {
+    int num_channels;
+    int width;
+    int height;
+    auto image_data = stbi_load(path.string().c_str(), &width, &height, &num_channels, 0);
+    auto data = image_data;
+    bool need_delete = false;
+    if (num_channels != 4) {
+        need_delete = true;
+        data = new uint8_t[width * height * 4];
+        for (size_t i = 0; i < width * height; i++) {
+            data[4 * i] = image_data[3 * i];
+            data[4 * i + 1] = image_data[3 * i + 1];
+            data[4 * i + 2] = image_data[3 * i + 2];
+            data[4 * i + 3] = 255;
+        }
+    }
+    texture = std::make_unique<CuTexture>(true, width, height, width * 4, data);
+    if (need_delete) {
+        delete[] data;
+    }
+    stbi_image_free(image_data);
+}
+
+void LoadTexture(std::unique_ptr<CuTexture> &texture, const std::filesystem::path &base_dir, const std::string &name) {
+    if (name.empty()) {
+        return;
+    }
+    auto path = base_dir / name;
     int num_channels;
     int width;
     int height;
@@ -178,20 +210,16 @@ bool LoadObjScene(Scene &scene, const std::filesystem::path &path) {
     for (size_t i = 0; i < in_materials.size(); i++) {
         const auto &in_mat = in_materials[i];
         auto mat = std::make_shared<Material>();
-        mat->diffuse = glm::vec3(in_mat.diffuse[0], in_mat.diffuse[1] ,in_mat.diffuse[2]);
-        mat->specular = glm::vec3(in_mat.specular[0], in_mat.specular[1] ,in_mat.specular[2]);
-        mat->emission = glm::vec3(in_mat.emission[0], in_mat.emission[1], in_mat.emission[2]);
+        mat->diffuse = Vec3From(in_mat.diffuse);
+        mat->specular = Vec3From(in_mat.specular);
+        mat->transmittance = Vec3From(in_mat.transmittance);
+        mat->emission = Vec3From(in_mat.emission);
         mat->ior = in_mat.ior;
         mat->shininess = in_mat.shininess;
-        if (!in_mat.diffuse_texname.empty()) {
-            LoadTexture(mat->diffuse_map, base_dir / in_mat.diffuse_texname);
-        }
-        if (!in_mat.specular_texname.empty()) {
-            LoadTexture(mat->specular_map, base_dir / in_mat.specular_texname);
-        }
-        if (!in_mat.emissive_texname.empty()) {
-            LoadTexture(mat->emission_map, base_dir / in_mat.emissive_texname);
-        }
+        mat->opacity = in_mat.dissolve;
+        LoadTexture(mat->diffuse_map, base_dir, in_mat.diffuse_texname);
+        LoadTexture(mat->specular_map, base_dir, in_mat.specular_texname);
+        LoadTexture(mat->emission_map, base_dir, in_mat.emissive_texname);
         mat->SetChanged();
         materials[i] = mat;
     }
