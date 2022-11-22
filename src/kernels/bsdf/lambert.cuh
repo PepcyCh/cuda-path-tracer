@@ -11,6 +11,7 @@ struct LambertBsdf {
 
     CU_DEVICE BsdfSample Sample(const glm::vec3 &wo, float rand1, const glm::vec2 &rand2) const {
         auto wi = CosineHemisphereSample(rand2);
+        wi.z = copysignf(wi.z, wo.z);
         return BsdfSample { wi, abs(wi.z) * kInvPi, color, { BsdfLobe::Type::eDiffuse, BsdfLobe::Dir::eReflection} };
     }
 

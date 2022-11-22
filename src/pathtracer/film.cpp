@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <cuda_gl_interop.h>
+#include <tinyexr.h>
 
 Film::Film(uint32_t width, uint32_t height) {
     Init(width, height);
@@ -55,4 +56,13 @@ void Film::Init(uint32_t width, uint32_t height) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     cudaGraphicsGLRegisterBuffer(&cuda_res_, gl_buffer_, cudaGraphicsRegisterFlagsNone);
+}
+
+void Film::SaveTo(const char *path) {
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, gl_buffer_);
+    auto data = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_READ_ONLY);
+    const char *save_err;
+    SaveEXR(reinterpret_cast<float *>(data), width_, height_, 4, 0, path, &save_err);
+    glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }

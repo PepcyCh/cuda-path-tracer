@@ -36,7 +36,7 @@ inline CU_DEVICE glm::vec3 CosineHemisphereSample(const glm::vec2 &rand) {
 }
 
 inline CU_DEVICE glm::vec3 Reflect(const glm::vec3 &i, const glm::vec3 &n) {
-    return 2.0f * n - i;
+    return 2.0f * glm::dot(i, n) * n - i;
 }
 
 }

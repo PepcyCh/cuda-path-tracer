@@ -1,5 +1,7 @@
 #include "pathtracer.hpp"
 
+#include <format>
+
 #include <imgui.h>
 
 #include "scene/mesh.hpp"
@@ -62,6 +64,12 @@ void PathTracer::ShowUi() {
     changed |= ImGui::DragInt("max depth", &max_depth_, 1, -1, 16);
     ImGui::Text("accumelated spp: %u", curr_spp_);
     changed |= ImGui::Button("reset accumeltaion");
+
+    if (ImGui::Button("capture frame")) {
+        auto exr_name = std::format("capture_{}.exr", num_captured_frames_);
+        ++num_captured_frames_;
+        film_.SaveTo(exr_name.c_str());
+    }
 
     if (changed) {
         ResetAccumelation();

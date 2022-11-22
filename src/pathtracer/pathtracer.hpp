@@ -23,6 +23,8 @@ private:
     Scene &scene_;
     Film &film_;
 
+    uint32_t num_captured_frames_ = 0;
+
     int max_depth_ = -1;
     uint32_t curr_spp_ = 0;
 

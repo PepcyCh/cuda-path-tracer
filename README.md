@@ -27,6 +27,7 @@ GPU and driver that support CUDA (CUDA 11.x) and OpenGL 3.3 are needed.
 * [stb image](https://github.com/nothings/stb)
 * [nlohmann json](https://github.com/nlohmann/json)
 * [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)
+* [tinyexr](https://github.com/syoyo/tinyexr)
 
 ## Details
 
