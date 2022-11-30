@@ -26,6 +26,9 @@ target_include_directories(stb INTERFACE thirdparty/stb)
 add_library(json INTERFACE)
 target_include_directories(json INTERFACE thirdparty/json/include)
 
+set(BUILD_TESTING OFF)
+add_subdirectory(thirdparty/tinyxml2)
+
 file(GLOB IMGUI_SOURCES thirdparty/imgui/*.cpp)
 add_library(imgui ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC thirdparty/imgui)
@@ -38,5 +41,5 @@ add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE CUDA::cudart CUDA::cuda_driver glfw glad tinyobjloader tinyexr glm stb json imgui)
+    PRIVATE CUDA::cudart CUDA::cuda_driver glfw glad tinyobjloader tinyexr glm stb json tinyxml2::tinyxml2 imgui)
 target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>)

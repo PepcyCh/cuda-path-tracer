@@ -68,4 +68,19 @@ inline CU_DEVICE float Pow5(float x) {
     return x2 * x2 * x;
 }
 
+inline CU_DEVICE float Fresnel(float ior, const glm::vec3 &i, const glm::vec3 &n) {
+    auto eta = glm::dot(i, n) < 0.0f ? ior : 1.0f / ior;
+    auto refract = Refract(i, n, ior);
+    if (refract != glm::vec3(0.0f)) {
+        auto idotn = abs(glm::dot(i, n));
+        auto tdotn = abs(glm::dot(refract, n));
+
+        auto rs = Pow2((idotn - eta * tdotn) / (idotn + eta * tdotn));
+        auto rp = Pow2((tdotn - eta * idotn) / (tdotn + eta * idotn));
+        return 0.5f * (rs + rp);
+    } else {
+        return 1.0f;
+    }
+}
+
 }

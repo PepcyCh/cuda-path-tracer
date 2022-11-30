@@ -27,6 +27,7 @@ private:
 
     int max_depth_ = -1;
     uint32_t curr_spp_ = 0;
+    int display_channel_ = 0;
 
     uint32_t last_width_ = 0;
     uint32_t last_height_ = 0;

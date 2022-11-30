@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <memory>
 
 #include <glm/glm.hpp>
@@ -18,6 +19,8 @@ public:
     void SetChanged();
 
     void ShowUi();
+
+    std::string name;
 
     glm::vec3 emission = glm::vec3(0.0f);
     glm::vec3 diffuse = glm::vec3(0.5f);

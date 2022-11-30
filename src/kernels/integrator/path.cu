@@ -9,10 +9,13 @@ namespace {
 CU_DEVICE glm::vec3 Trace(const PathTracer::Params &params, Ray ray, SamplerState &sampler) {
     AccelHitInfo hit_info;
     if (!params.scene.accel->Intersect(ray, hit_info)) {
-        // TODO - envmap
         return glm::vec3(0.0f);
     }
     auto surface = params.scene.instances[hit_info.instance_id].GetShadingSurface(hit_info);
+
+    if (params.channel == PathTracer::Params::Channel::eNormal) {
+        return surface.vertex.normal * 0.5f + 0.5f;
+    }
 
     glm::vec3 color = surface.bsdf.emission;
     glm::vec3 throughput(1.0f);
@@ -49,7 +52,6 @@ CU_DEVICE glm::vec3 Trace(const PathTracer::Params &params, Ray ray, SamplerStat
         ray = Ray(surface.vertex.position, frame.ToWorld(bsdf_samp.wi));
 
         if (!params.scene.accel->Intersect(ray, hit_info)) {
-            // TODO - envmap
             break;
         }
 

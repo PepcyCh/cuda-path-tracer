@@ -59,6 +59,8 @@ bool Material::IsEmissive() const {
 }
 
 void Material::ShowUi() {
+    ImGui::Text("%s", name.c_str());
+
     bool changed = false;
     changed |= ImGui::DragFloat3("emission", &emission.x, 0.0f);
     changed |= ImGui::DragFloat3("diffuse", &diffuse.x, 0.01f, 0.0f, 1.0f);
@@ -82,6 +84,7 @@ void Material::ShowUi() {
     ImGui::Text("specular map: %s", specular_map ? "true" : "false");
     const char *bsdf_type_name[] = {
         "Lambert",
+        "Phong",
         "Blinn-Phong",
         "Microfacet",
     };

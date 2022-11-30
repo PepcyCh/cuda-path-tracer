@@ -5,10 +5,10 @@ A basic path tracer written in C++20 and CUDA with a naive component system.
 Usage:
 
 ```
-cuda-pathtracer <path-to-obj-file> <path-to-extra-json-file>
+cuda-pathtracer <path-to-obj-file> <path-to-extra-file>
 ```
 
-This CUDA path tracer currently only support `.obj` scene and support reading material from corresponding `.mtl` file. `.json` file is used to specify the camera.
+This CUDA path tracer currently only support `.obj` scene and support reading material from corresponding `.mtl` file. Another file (`.json` or `.xml`) is used to specify the camera and some other info.
 
 ## Build
 
@@ -26,6 +26,7 @@ GPU and driver that support CUDA (CUDA 11.x) and OpenGL 3.3 are needed.
 * [Dear ImGui](https://github.com/ocornut/imgui)
 * [stb image](https://github.com/nothings/stb)
 * [nlohmann json](https://github.com/nlohmann/json)
+* [tinyxml2](https://github.com/leethomason/tinyxml2)
 * [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)
 * [tinyexr](https://github.com/syoyo/tinyexr)
 

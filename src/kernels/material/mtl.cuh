@@ -14,11 +14,27 @@ struct MtlMaterial : MaterialCommon {
     Bsdf::Type bsdf_type;
 
     CU_DEVICE Bsdf GetBsdf(const glm::vec2 &uv) const {
+        if (bsdf_type != Bsdf::Type::eMicrofacet && opacity == 0.0f) {
+            Bsdf bsdf { Bsdf::Type::eGlass };
+            auto data = reinterpret_cast<GlassBsdf *>(bsdf.data);
+            data->reflectance = specular.At(uv);
+            data->transmittance = transmittance.At(uv);
+            data->ior = ior;
+            return bsdf;
+        }
+
         Bsdf bsdf { bsdf_type };
         switch (bsdf_type) {
             case Bsdf::Type::eLambert: {
                 auto data = reinterpret_cast<LambertBsdf *>(bsdf.data);
                 data->color = diffuse.At(uv);
+                break;
+            }
+            case Bsdf::Type::ePhong: {
+                auto data = reinterpret_cast<PhongBsdf *>(bsdf.data);
+                data->diffuse = diffuse.At(uv);
+                data->specular = specular.At(uv);
+                data->shininess = shininess;
                 break;
             }
             case Bsdf::Type::eBlinnPhong: {
@@ -38,6 +54,8 @@ struct MtlMaterial : MaterialCommon {
                 data->opacity = opacity;
                 break;
             }
+            default:
+                break;
         }
         return bsdf;
     }

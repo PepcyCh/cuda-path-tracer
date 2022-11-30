@@ -1,9 +1,11 @@
 #include "loader.hpp"
 
 #include <fstream>
+#include <iostream>
 
 #include <tiny_obj_loader.h>
 #include <nlohmann/json.hpp>
+#include <tinyxml2.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -92,6 +94,26 @@ void LoadTexture(std::unique_ptr<CuTexture> &texture, const std::filesystem::pat
         delete[] data;
     }
     stbi_image_free(image_data);
+}
+
+glm::vec3 Vec3FromCommaSplittedStr(const char *str) {
+    auto length = strlen(str);
+    glm::vec3 vec;
+    size_t vec_i = 0, l = 0;
+    for (size_t r = 0; r < length; r++) {
+        if (str[r] == ',') {
+            vec[vec_i] = std::atof(str + l);
+            ++vec_i;
+            if (vec_i == 3) {
+                break;
+            }
+            l = r + 1;
+        }
+    }
+    if (vec_i < 3) {
+        vec[vec_i] = std::atof(str + l);
+    }
+    return vec;
 }
 
 }
@@ -210,13 +232,15 @@ bool LoadObjScene(Scene &scene, const std::filesystem::path &path) {
     for (size_t i = 0; i < in_materials.size(); i++) {
         const auto &in_mat = in_materials[i];
         auto mat = std::make_shared<Material>();
+        mat->name = in_mat.name;
         mat->diffuse = Vec3From(in_mat.diffuse);
         mat->specular = Vec3From(in_mat.specular);
         mat->transmittance = Vec3From(in_mat.transmittance);
         mat->emission = Vec3From(in_mat.emission);
         mat->ior = in_mat.ior;
         mat->shininess = in_mat.shininess;
-        mat->opacity = in_mat.dissolve;
+        // mat->opacity = in_mat.dissolve;
+        mat->opacity = in_mat.ior == 1.0f ? 1.0f : 0.0f;
         LoadTexture(mat->diffuse_map, base_dir, in_mat.diffuse_texname);
         LoadTexture(mat->specular_map, base_dir, in_mat.specular_texname);
         LoadTexture(mat->emission_map, base_dir, in_mat.emissive_texname);
@@ -259,6 +283,71 @@ bool LoadJsonScene(Scene &scene, const std::filesystem::path &path) {
     camera_comp->look_at = look_at;
     camera_comp->up = up;
     camera_comp->fov = fov;
+
+    return true;
+}
+
+bool LoadXmlScene(Scene &scene, const std::filesystem::path &path) {
+    tinyxml2::XMLDocument scene_doc;
+    auto load_ret = scene_doc.LoadFile(path.string().c_str());
+    if (load_ret != tinyxml2::XML_SUCCESS) {
+        std::cout << "xml parsing error: " << scene_doc.ErrorStr() << std::endl;
+        return false;
+    }
+
+    // camera
+    auto camera_node = scene_doc.FirstChildElement("camera");
+    auto film_width = std::atoi(camera_node->Attribute("width"));
+    auto film_height = std::atoi(camera_node->Attribute("height"));
+    auto fov = std::atof(camera_node->Attribute("fovy"));
+
+    auto pos_node = camera_node->FirstChildElement("eye");
+    glm::vec3 pos(
+        std::atof(pos_node->Attribute("x")),
+        std::atof(pos_node->Attribute("y")),
+        std::atof(pos_node->Attribute("z"))
+    );
+    auto look_at_node = camera_node->FirstChildElement("lookat");
+    glm::vec3 look_at(
+        std::atof(look_at_node->Attribute("x")),
+        std::atof(look_at_node->Attribute("y")),
+        std::atof(look_at_node->Attribute("z"))
+    );
+    auto up_node = camera_node->FirstChildElement("up");
+    glm::vec3 up(
+        std::atof(up_node->Attribute("x")),
+        std::atof(up_node->Attribute("y")),
+        std::atof(up_node->Attribute("z"))
+    );
+
+    auto camera_object = scene.AddObject("camera");
+    auto camera_comp = camera_object->AddComponent<CameraComponent>();
+    camera_comp->pos = pos;
+    camera_comp->look_at = look_at;
+    camera_comp->up = up;
+    camera_comp->fov = fov;
+    camera_comp->film_width = film_width;
+    camera_comp->film_height = film_height;
+
+    // area lights
+    auto light_node = scene_doc.FirstChildElement("light");
+    std::unordered_map<std::string, glm::vec3> radiance_map;
+    while (light_node) {
+        auto mtlname = light_node->Attribute("mtlname");
+        auto radiance_str = light_node->Attribute("radiance");
+        auto radiance = Vec3FromCommaSplittedStr(radiance_str);
+        radiance_map[mtlname] = radiance;
+
+        light_node = light_node->NextSiblingElement("light");
+    }
+    scene.ForEach<MaterialComponent>([&](MaterialComponent &material) {
+        auto mat = material.GetMaterial();
+        if (auto it = radiance_map.find(mat->name); it != radiance_map.end()) {
+            mat->emission = it->second;
+            mat->emission_map.reset();
+            mat->SetChanged();
+        }
+    });
 
     return true;
 }

@@ -54,6 +54,7 @@ void PathTracer::Update() {
         .screen_height = film_.Height(),
         .spp = curr_spp_,
         .max_depth = static_cast<uint32_t>(max_depth_),
+        .channel = static_cast<kernel::PathTracer::Params::Channel>(display_channel_),
     };
     kernel::PathTracer::Render(params);
     film_.CudaUnmap();
@@ -64,6 +65,13 @@ void PathTracer::ShowUi() {
     changed |= ImGui::DragInt("max depth", &max_depth_, 1, -1, 16);
     ImGui::Text("accumelated spp: %u", curr_spp_);
     changed |= ImGui::Button("reset accumeltaion");
+
+    const char *channel_name[] = {
+        "Color",
+        "Normal",
+    };
+    changed |= ImGui::Combo("channel", &display_channel_, channel_name,
+        sizeof(channel_name) / sizeof(channel_name[0]));
 
     if (ImGui::Button("capture frame")) {
         auto exr_name = std::format("capture_{}.exr", num_captured_frames_);
@@ -162,8 +170,8 @@ void PathTracer::BuildInstancesAndLights() {
     std::vector<kernel::Light> lights;
     geo_light_buffers_.clear();
 
-    scene_.ForEach<const MeshComponent, MaterialComponent>(
-        [this, &instances, &lights](SceneObject &object, const MeshComponent &mesh, MaterialComponent &material) {
+    scene_.ForEach<const MeshComponent, const MaterialComponent>(
+        [this, &instances, &lights](SceneObject &object, const MeshComponent &mesh, const MaterialComponent &material) {
             kernel::Instance inst {
                 .geometry = {
                     .type = kernel::Geometry::Type::eTriMesh,
@@ -194,8 +202,6 @@ void PathTracer::BuildInstancesAndLights() {
             instances.push_back(inst);
         }
     );
-
-    // scene_.ForEach<LightComponent>()
 
     num_lights_ = lights.size();
 

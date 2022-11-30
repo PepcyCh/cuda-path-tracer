@@ -6,7 +6,7 @@
 
 int main(int argc, char **argv) {
     if (argc != 3) {
-        std::cout << "usage: " << argv[0] << " <path-to-obj-file> <path-to-extra-json-file>" << std::endl;
+        std::cout << "usage: " << argv[0] << " <path-to-obj-file> <path-to-extra-file>" << std::endl;
         return -1;
     }
 
@@ -16,9 +16,9 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    std::filesystem::path json_path(argv[2]);
-    if (!std::filesystem::exists(json_path)) {
-        std::cout << "json file '" << json_path << "' doesn't exist" << std::endl;
+    std::filesystem::path extra_path(argv[2]);
+    if (!std::filesystem::exists(extra_path)) {
+        std::cout << "extra file '" << extra_path << "' doesn't exist" << std::endl;
         return -1;
     }
 
@@ -31,8 +31,18 @@ int main(int argc, char **argv) {
         std::cout << "failed to load obj file '" << obj_path << "'" << std::endl;
         return -1;
     }
-    if (!LoadJsonScene(scene, json_path)) {
-        std::cout << "failed to load json file '" << json_path << "'" << std::endl;
+    if (extra_path.extension() == ".json") {
+        if (!LoadJsonScene(scene, extra_path)) {
+            std::cout << "failed to load json file '" << extra_path << "'" << std::endl;
+            return -1;
+        }
+    } else if (extra_path.extension() == ".xml") {
+        if (!LoadXmlScene(scene, extra_path)) {
+            std::cout << "failed to load xml file '" << extra_path << "'" << std::endl;
+            return -1;
+        }
+    } else {
+        std::cout << "unknown extra file extension '" << extra_path.extension().string() << "'" << std::endl;
         return -1;
     }
 

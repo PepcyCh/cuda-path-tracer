@@ -12,6 +12,11 @@ struct PathTracer {
         uint32_t screen_height;
         uint32_t spp;
         uint32_t max_depth;
+
+        enum struct Channel {
+            eColor,
+            eNormal,
+        } channel;
     };
 
     static void Render(const Params &params);
