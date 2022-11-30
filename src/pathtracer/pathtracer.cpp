@@ -74,7 +74,7 @@ void PathTracer::ShowUi() {
         sizeof(channel_name) / sizeof(channel_name[0]));
 
     if (ImGui::Button("capture frame")) {
-        auto exr_name = std::format("capture_{}.exr", num_captured_frames_);
+        auto exr_name = std::format("{}_{}.exr", capture_name_, num_captured_frames_);
         ++num_captured_frames_;
         film_.SaveTo(exr_name.c_str());
     }

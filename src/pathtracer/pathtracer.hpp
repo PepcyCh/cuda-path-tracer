@@ -16,6 +16,9 @@ public:
 
     void ShowUi();
 
+    void SetCaptureName(std::string_view capture_name) { capture_name_ = capture_name; }
+    void SetMaxDepth(int max_depth) { max_depth_ = max_depth; }
+
 private:
     void BuildAccel();
     void BuildInstancesAndLights();
@@ -24,6 +27,7 @@ private:
     Film &film_;
 
     uint32_t num_captured_frames_ = 0;
+    std::string capture_name_;
 
     int max_depth_ = -1;
     uint32_t curr_spp_ = 0;

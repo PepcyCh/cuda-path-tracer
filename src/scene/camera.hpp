@@ -21,8 +21,8 @@ public:
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     float fov = 45.0f;
 
-    uint32_t film_width;
-    uint32_t film_height;
+    uint32_t film_width = 1280;
+    uint32_t film_height = 720;
 
 private:
     std::unique_ptr<CuBuffer> buffer_;

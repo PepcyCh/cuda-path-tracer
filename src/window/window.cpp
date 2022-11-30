@@ -102,7 +102,7 @@ void GlfwResizeCallback(GLFWwindow *glfw_window, int width, int height) {
     }
 }
 
-Window::Window(uint32_t width, uint32_t height, const char *title) : width_(width), height_(width) {
+Window::Window(uint32_t width, uint32_t height, const char *title, bool invisible) : width_(width), height_(width) {
     glfwSetErrorCallback(GlfwErrorLogFunc);
     glfwInit();
 
@@ -110,6 +110,9 @@ Window::Window(uint32_t width, uint32_t height, const char *title) : width_(widt
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+    if (invisible) {
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+    }
     window_ = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (window_ == nullptr) {
         std::cerr << "Failed to create glfw window\n";
@@ -150,7 +153,6 @@ Window::Window(uint32_t width, uint32_t height, const char *title) : width_(widt
     ImGui_ImplGlfw_InitForOpenGL(window_, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    std::cout << "GL_VERSION: " << glGetString(GL_VERSION) <<  std::endl;
     std::cout << "GL_VENDOR: " << glGetString(GL_VENDOR) <<  std::endl;
 
     InitDisplayProgram();
