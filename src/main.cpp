@@ -70,18 +70,17 @@ int main(int argc, char **argv) {
     uint32_t window_height = 720;
     Window window(window_width, window_height, "CUDA pathtracer", !cmd_args.ui);
 
+    auto camera_object = scene.FirstObjectWith<CameraComponent>();
     uint32_t film_width = window_width;
     uint32_t film_height = window_height;
     if (!cmd_args.ui) {
-        scene.ForEach<const CameraComponent>([&](const CameraComponent &camera) {
-            film_width = camera.film_width;
-            film_height = camera.film_height;
-        });
+        auto camera_comp = camera_object->GetComponent<CameraComponent>();
+        film_width = camera_comp->film_width;
+        film_height = camera_comp->film_height;
     }
     Film film(film_width, film_height);
 
-    auto path_tracer_object = scene.AddObject("path tracer");
-    auto path_tracer = path_tracer_object->AddComponent<PathTracer>(scene, film);
+    auto path_tracer = camera_object->AddComponent<PathTracer>(scene, film);
     path_tracer->SetMaxDepth(cmd_args.max_depth);
     path_tracer->SetCaptureName(cmd_args.capture_name);
     path_tracer->BuildBuffers();

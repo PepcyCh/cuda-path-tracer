@@ -17,8 +17,9 @@ struct MtlMaterial : MaterialCommon {
         if (bsdf_type != Bsdf::Type::eMicrofacet && opacity == 0.0f) {
             Bsdf bsdf { Bsdf::Type::eGlass };
             auto data = reinterpret_cast<GlassBsdf *>(bsdf.data);
-            data->reflectance = specular.At(uv);
+            // data->reflectance = specular.At(uv);
             data->transmittance = transmittance.At(uv);
+            data->reflectance = data->transmittance;
             data->ior = ior;
             return bsdf;
         }

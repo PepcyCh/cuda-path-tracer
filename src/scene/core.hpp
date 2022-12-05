@@ -137,6 +137,9 @@ public:
     template <typename T1, typename... TOther, std::invocable<SceneObject &, T1 &, TOther &...> F>
     void ForEach(F &&func);
 
+    template <typename... Ts>
+    SceneObject *FirstObjectWith();
+
 private:
     friend SceneObject;
 
@@ -267,4 +270,14 @@ void Scene::ForEach(F &&func) {
             });
         }
     }
+}
+
+template <typename... Ts>
+SceneObject *Scene::FirstObjectWith() {
+    for (auto &object : objects_) {
+        if (object->HasComponents<Ts...>()) {
+            return object.get();
+        }
+    }
+    return nullptr;
 }
