@@ -19,8 +19,8 @@ struct MaterialValue {
     CU_DEVICE glm::vec3 At(const glm::vec2 &uv) const {
         auto res = value;
         if (texture) {
-            READ_TEX2D(tex_value, texture, uv.x, uv.y);
-            res *= glm::vec3(tex_value.x, tex_value.y, tex_value.z);
+            READ_TEX2D(tex_value, texture, uv.x, 1.0f - uv.y);
+            res = glm::vec3(tex_value.x, tex_value.y, tex_value.z);
         }
         return res;
     }

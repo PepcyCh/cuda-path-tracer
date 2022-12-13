@@ -5,7 +5,7 @@
 namespace kernel {
 
 struct Ray {
-    static constexpr float kDefaultTMin = 1e-5f;
+    static constexpr float kDefaultTMin = 0.0001f;
     static constexpr float kDefaultTMax = std::numeric_limits<float>::max();
     static constexpr float kShadowRayEps = 0.001f;
 

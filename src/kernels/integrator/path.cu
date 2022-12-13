@@ -18,6 +18,9 @@ CU_DEVICE glm::vec3 Trace(const PathTracer::Params &params, Ray ray, SamplerStat
     }
 
     glm::vec3 color = surface.bsdf.emission;
+    if (color != glm::vec3(0.0f)) {
+        return color;
+    }
     glm::vec3 throughput(1.0f);
     for (uint32_t depth = 0; depth < params.max_depth; depth++) {
         Frame frame(surface.vertex.normal);
@@ -66,6 +69,7 @@ CU_DEVICE glm::vec3 Trace(const PathTracer::Params &params, Ray ray, SamplerStat
                 mis_weight = PowerHeuristic(bsdf_samp.pdf, light_pdf);
             }
             color += throughput * mis_weight * surface.bsdf.emission;
+            break;
         }
 
         float rr_prop = glm::clamp(Luminance(throughput), 0.01f, 0.95f);

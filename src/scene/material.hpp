@@ -29,7 +29,7 @@ public:
     float ior = 1.5f;
     float shininess = 1.0f;
     float opacity = 1.0f;
-    int bsdf_type = 1;
+    int bsdf_type = 2;
 
     std::unique_ptr<CuTexture> emission_map;
     std::unique_ptr<CuTexture> diffuse_map;

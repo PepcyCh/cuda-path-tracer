@@ -153,8 +153,6 @@ Window::Window(uint32_t width, uint32_t height, const char *title, bool invisibl
     ImGui_ImplGlfw_InitForOpenGL(window_, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
-    std::cout << "GL_VENDOR: " << glGetString(GL_VENDOR) <<  std::endl;
-
     InitDisplayProgram();
 }
 

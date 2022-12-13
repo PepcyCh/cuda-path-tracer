@@ -141,7 +141,7 @@ struct std::hash<ObjIndex> {
     }
 };
 
-bool LoadObjScene(Scene &scene, const std::filesystem::path &path) {
+bool LoadObjScene(Scene &scene, const std::filesystem::path &path, int bsdf_type) {
     tinyobj::attrib_t in_attribs;
     std::vector<tinyobj::shape_t> in_shapes;
     std::vector<tinyobj::material_t> in_materials;
@@ -232,6 +232,7 @@ bool LoadObjScene(Scene &scene, const std::filesystem::path &path) {
     for (size_t i = 0; i < in_materials.size(); i++) {
         const auto &in_mat = in_materials[i];
         auto mat = std::make_shared<Material>();
+        mat->bsdf_type = bsdf_type;
         mat->name = in_mat.name;
         mat->diffuse = Vec3From(in_mat.diffuse);
         mat->specular = Vec3From(in_mat.specular);

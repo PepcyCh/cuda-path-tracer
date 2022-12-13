@@ -24,7 +24,6 @@ CuTexture::CuTexture(bool is_srgb, uint32_t width, uint32_t height, uint32_t byt
         .mipmapFilterMode = cudaFilterModeLinear,
     };
     cudaCreateTextureObject(&texture_, &res_desc, &tex_desc, nullptr);
-
 }
 
 CuTexture::~CuTexture() {

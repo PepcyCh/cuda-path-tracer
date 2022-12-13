@@ -8,6 +8,7 @@ struct BlinnPhongBsdf {
     glm::vec3 diffuse;
     glm::vec3 specular;
     float shininess;
+    float s_norm;
 
     CU_DEVICE bool IsDelta() const { return false; }
 
@@ -44,7 +45,7 @@ struct BlinnPhongBsdf {
         }
         auto half_pdf = s * (2.0f + shininess) * kInv2Pi;
         samp.pdf = diffuse_pdf * d + specular_pdf * half_pdf / (4.0f * abs(glm::dot(samp.wi, h)));
-        samp.weight = (diffuse * d + specular * s) / samp.pdf;
+        samp.weight = (diffuse * d + specular * s * s_norm) / samp.pdf;
 
         return samp;
     }
@@ -69,7 +70,7 @@ struct BlinnPhongBsdf {
         }
         auto h = ReflectHalf(wi, wo);
         auto d = diffuse * abs(wi.z) * kInvPi;
-        auto s = specular * pow(h.z, shininess);
+        auto s = specular * pow(h.z, shininess) * s_norm;
         return d + s;
     }
 };

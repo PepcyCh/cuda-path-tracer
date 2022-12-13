@@ -8,6 +8,7 @@ struct PhongBsdf {
     glm::vec3 diffuse;
     glm::vec3 specular;
     float shininess;
+    float s_norm;
 
     CU_DEVICE bool IsDelta() const { return false; }
 
@@ -36,7 +37,7 @@ struct PhongBsdf {
         }
         auto r = glm::vec3(-wo.x, -wo.y, wo.z);
         auto d = diffuse * abs(wi.z) * kInvPi;
-        auto s = specular * pow(glm::dot(r, wi), shininess);
+        auto s = specular * pow(glm::dot(r, wi), shininess) * s_norm;
         return d + s;
     }
 };

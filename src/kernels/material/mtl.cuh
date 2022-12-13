@@ -36,6 +36,7 @@ struct MtlMaterial : MaterialCommon {
                 data->diffuse = diffuse.At(uv);
                 data->specular = specular.At(uv);
                 data->shininess = shininess;
+                data->s_norm = (shininess + 1) * kInv2Pi;
                 break;
             }
             case Bsdf::Type::eBlinnPhong: {
@@ -43,6 +44,7 @@ struct MtlMaterial : MaterialCommon {
                 data->diffuse = diffuse.At(uv);
                 data->specular = specular.At(uv);
                 data->shininess = shininess;
+                data->s_norm = (shininess + 2) / (4 * kPi * (2 - pow(2.0f, -shininess / 2)));
                 break;
             }
             case Bsdf::Type::eMicrofacet: {

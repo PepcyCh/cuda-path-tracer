@@ -5,7 +5,14 @@ A basic path tracer written in C++20 and CUDA with a naive component system.
 Usage:
 
 ```
-cuda-pathtracer <path-to-obj-file> <path-to-extra-file>
+cuda-pathtracer <path-to-obj-file> <path-to-extra-file> [OPTIONS]
+
+OPTIONS
+  --ui            0 or 1, whether show UI (default 1)
+  --max-depth     max ray tracing depth (default -1, no limit)
+  --max-spp       max ray tracing spp when ui is 0 (default -1, no limit)
+  --output | -o   output .exr name (default 'capture')
+  --bsdf-type     which BSDF to use (default 'blinn-phong')
 ```
 
 This CUDA path tracer currently only support `.obj` scene and support reading material from corresponding `.mtl` file. Another file (`.json` or `.xml`) is used to specify the camera and some other info.
