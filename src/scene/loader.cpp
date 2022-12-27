@@ -241,7 +241,7 @@ bool LoadObjScene(Scene &scene, const std::filesystem::path &path, int bsdf_type
         mat->ior = in_mat.ior;
         mat->shininess = in_mat.shininess;
         // mat->opacity = in_mat.dissolve;
-        mat->opacity = in_mat.ior == 1.0f ? 1.0f : 0.0f;
+        mat->opacity = in_mat.ior == 1.0f || mat->transmittance == glm::vec3(0.0f) ? 1.0f : 0.0f;
         LoadTexture(mat->diffuse_map, base_dir, in_mat.diffuse_texname);
         LoadTexture(mat->specular_map, base_dir, in_mat.specular_texname);
         LoadTexture(mat->emission_map, base_dir, in_mat.emissive_texname);
@@ -284,6 +284,11 @@ bool LoadJsonScene(Scene &scene, const std::filesystem::path &path) {
     camera_comp->look_at = look_at;
     camera_comp->up = up;
     camera_comp->fov = fov;
+
+    if (camera_json.contains("resolution")) {
+        camera_comp->film_width = camera_json["resolution"][0].get<uint32_t>();
+        camera_comp->film_height = camera_json["resolution"][1].get<uint32_t>();
+    }
 
     return true;
 }
