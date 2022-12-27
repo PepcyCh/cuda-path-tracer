@@ -35,6 +35,7 @@ struct MtlMaterial : MaterialCommon {
                 auto data = reinterpret_cast<PhongBsdf *>(bsdf.data);
                 data->diffuse = diffuse.At(uv);
                 data->specular = specular.At(uv);
+                data->diffuse *= 1.0f - fmax(data->specular.x, fmax(data->specular.y, data->specular.z));
                 data->shininess = shininess;
                 data->s_norm = (shininess + 1) * kInv2Pi;
                 break;
@@ -43,6 +44,7 @@ struct MtlMaterial : MaterialCommon {
                 auto data = reinterpret_cast<BlinnPhongBsdf *>(bsdf.data);
                 data->diffuse = diffuse.At(uv);
                 data->specular = specular.At(uv);
+                data->diffuse *= 1.0f - fmax(data->specular.x, fmax(data->specular.y, data->specular.z));
                 data->shininess = shininess;
                 data->s_norm = (shininess + 2) / (4 * kPi * (2 - pow(2.0f, -shininess / 2)));
                 break;
