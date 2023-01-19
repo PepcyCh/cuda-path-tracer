@@ -2,6 +2,8 @@
 
 A basic path tracer written in C++20 and CUDA with a naive component system.
 
+（Also project for Zhejiang University 2022-2023 August-Winter Advanced Computer Graphics master course）
+
 Usage:
 
 ```
@@ -45,3 +47,5 @@ The 2 main purposes for me to write this project are to
 2. try to implement a very naive component system (just for fun)
 
 In this naive component system, a block linked list is used to store components for each component type, so it may be quick to loop over entities with a single specific component type but slow to loop over components of a specific entity. There is no need to derive some base class, each class can be a component type directly.
+
+![](./pic/readme.jpg)
