@@ -2,7 +2,7 @@
 
 A basic path tracer written in C++20 and CUDA with a naive component system.
 
-（Also project for Zhejiang University 2022-2023 August-Winter Advanced Computer Graphics master course）
+（Also project for Zhejiang University 2022-2023 Autumn-Winter Advanced Computer Graphics master course）
 
 Usage:
 
